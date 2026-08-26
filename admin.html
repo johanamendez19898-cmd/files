@@ -38,20 +38,6 @@ main{max-width:1100px; margin:0 auto; padding:20px;}
 .btn:active{transform:scale(0.97);}
 
 .toast{position:fixed; top:14px; left:50%; transform:translateX(-50%); background:var(--plantain); color:#fff; padding:10px 20px; border-radius:999px; font-weight:700; font-size:0.85rem; z-index:100; opacity:0; pointer-events:none; transition:opacity .25s;}
-.toast.error{background:var(--aji);}
-
-/* modal de configuração de publicação */
-.modal-overlay{position:fixed; inset:0; background:rgba(28,20,16,0.55); z-index:200; display:none; align-items:center; justify-content:center; padding:20px;}
-.modal-overlay.open{display:flex;}
-.pub-modal{background:var(--paper); border-radius:var(--radius); max-width:460px; width:100%; max-height:88vh; overflow-y:auto; padding:24px;}
-.pub-modal h3{font-size:1.1rem; margin-bottom:6px;}
-.pub-modal p{font-size:0.82rem; color:#5c4c40; line-height:1.5; margin-bottom:14px;}
-.pub-modal .field{margin-bottom:12px;}
-.pub-modal label{font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#7a6a5c; display:block; margin-bottom:4px;}
-.pub-modal input{width:100%; padding:10px 12px; border-radius:10px; border:2px solid var(--line);}
-.pub-modal .modal-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:16px;}
-.pub-status{font-size:0.78rem; color:#7a6a5c; text-align:center; margin-top:8px;}
-.help-link{font-size:0.78rem; text-decoration:underline; color:var(--aji-dark); cursor:pointer;}
 .toast.show{opacity:1;}
 
 .toolbar{display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center;}
@@ -102,19 +88,17 @@ main{max-width:1100px; margin:0 auto; padding:20px;}
 <header>
   <div class="header-inner">
     <h1>🛠️ Painel do Cardápio — Sabor Que Une</h1>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <a href="index.html" target="_blank">Ver site ↗</a>
-      <a href="#" onclick="openPubSettings(); return false;" id="pubStatusLink">⚙️ Publicação</a>
-    </div>
+    <a href="index.html" target="_blank">Ver site ↗</a>
   </div>
 </header>
 
 <main>
   <div class="banner">
     <b>Como funciona:</b> tudo o que você editar aqui é salvo automaticamente neste navegador e o
-    <b>site já atualiza sozinho</b> quando aberto no mesmo aparelho/navegador. Para publicar a mudança
-    para <b>todos os clientes</b>, clique em <b>"🚀 Publicar automaticamente"</b> lá embaixo — ele envia
-    a atualização direto pro GitHub sozinho (é só configurar uma vez em "⚙️ Publicação" no topo).
+    <b>site já atualiza sozinho</b> quando aberto no mesmo aparelho/navegador. Para que a mudança apareça
+    para <b>todos os clientes</b> (em qualquer aparelho), clique em <b>"Baixar cardápio atualizado"</b>
+    lá embaixo e envie o arquivo <code>products-data.js</code> baixado para o seu site, substituindo o
+    arquivo atual (via o painel da sua hospedagem, FTP, GitHub, etc.).
   </div>
 
   <div class="toolbar">
@@ -128,62 +112,11 @@ main{max-width:1100px; margin:0 auto; padding:20px;}
 </main>
 
 <div class="savebar">
-  <button class="btn btn-primary" id="publishBtn" onclick="publishToGitHub()">🚀 Publicar automaticamente</button>
   <button class="btn btn-outline" onclick="importFile()">📥 Importar arquivo</button>
-  <button class="btn btn-dark" onclick="downloadData()">⬇️ Baixar arquivo manualmente</button>
+  <button class="btn btn-dark" onclick="downloadData()">⬇️ Baixar cardápio atualizado (products-data.js)</button>
   <button class="btn btn-danger" onclick="resetAll()">↺ Restaurar padrão</button>
 </div>
 <input type="file" id="fileInput" accept=".js" style="display:none">
-
-<!-- ========= MODAL DE CONFIGURAÇÃO DE PUBLICAÇÃO ========= -->
-<div class="modal-overlay" id="pubModal" onclick="if(event.target===this) closePubSettings()">
-  <div class="pub-modal">
-    <h3>⚙️ Configurar publicação automática</h3>
-    <p>
-      Preencha uma única vez com os dados do seu repositório no GitHub e um <b>token de acesso</b>.
-      Depois disso, o botão "🚀 Publicar automaticamente" envia as atualizações sozinho, sem precisar
-      baixar/subir arquivo manualmente.
-      <br><br>
-      <span class="help-link" onclick="toggleHelp()">Como criar o token de acesso? (clique aqui)</span>
-    </p>
-    <div id="pubHelp" style="display:none; font-size:0.78rem; background:#F0E7D3; border-radius:10px; padding:12px; margin-bottom:14px; line-height:1.6;">
-      1. Acesse <b>github.com/settings/personal-access-tokens/new</b> (logado na sua conta).<br>
-      2. Em "Repository access", escolha <b>"Only select repositories"</b> e selecione o repositório do cardápio.<br>
-      3. Em "Permissions" → "Repository permissions", ache <b>"Contents"</b> e mude para <b>"Read and write"</b>.<br>
-      4. Clique em "Generate token" e copie o código gerado (começa com <code>github_pat_...</code>).<br>
-      5. Cole esse código no campo "Token" abaixo. Guarde-o como uma senha — não compartilhe.
-    </div>
-    <div class="field">
-      <label>Usuário ou organização do GitHub</label>
-      <input type="text" id="cfgOwner" placeholder="ex: seuusuario">
-    </div>
-    <div class="field">
-      <label>Nome do repositório</label>
-      <input type="text" id="cfgRepo" placeholder="ex: sabor-que-une">
-    </div>
-    <div class="field">
-      <label>Branch (deixe "main" se não souber)</label>
-      <input type="text" id="cfgBranch" placeholder="main" value="main">
-    </div>
-    <div class="field">
-      <label>Caminho do arquivo (deixe como está)</label>
-      <input type="text" id="cfgPath" placeholder="products-data.js" value="products-data.js">
-    </div>
-    <div class="field">
-      <label>Token de acesso pessoal (Fine-grained)</label>
-      <input type="password" id="cfgToken" placeholder="github_pat_...">
-    </div>
-    <p style="font-size:0.72rem; color:#8a7a6c; margin-bottom:0;">
-      🔒 O token fica salvo só neste navegador (nunca é enviado pra nenhum outro lugar além do GitHub).
-      Evite configurar isso em computadores públicos/compartilhados.
-    </p>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="forgetToken()">Remover token deste navegador</button>
-      <button class="btn btn-primary" onclick="savePubSettings()">Salvar</button>
-    </div>
-    <div class="pub-status" id="pubStatusText"></div>
-  </div>
-</div>
 
 <div class="toast" id="toast"></div>
 
@@ -209,13 +142,12 @@ function persist(){
   showToast('Alterações salvas ✓ (o site já está atualizado neste navegador)');
 }
 
-function showToast(msg, isError){
+function showToast(msg){
   const el = document.getElementById('toast');
   el.textContent = msg;
-  el.classList.toggle('error', !!isError);
   el.classList.add('show');
   clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(()=> el.classList.remove('show'), isError ? 4500 : 2600);
+  window._toastTimer = setTimeout(()=> el.classList.remove('show'), 2600);
 }
 
 function catLabel(id){
@@ -496,150 +428,8 @@ function resetAll(){
   render();
 }
 
-/* ================== PUBLICAÇÃO AUTOMÁTICA (GitHub) ================== */
-const PUB_CONFIG_KEY = 'sabor_que_une_github_config';
-
-function loadPubConfig(){
-  try{
-    const raw = localStorage.getItem(PUB_CONFIG_KEY);
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
-  return null;
-}
-
-function updatePubStatusLink(){
-  const cfg = loadPubConfig();
-  const link = document.getElementById('pubStatusLink');
-  link.textContent = cfg ? '⚙️ Publicação (configurada ✓)' : '⚙️ Publicação';
-}
-
-function toggleHelp(){
-  const el = document.getElementById('pubHelp');
-  el.style.display = el.style.display==='none' ? 'block' : 'none';
-}
-
-function openPubSettings(){
-  const cfg = loadPubConfig() || {};
-  document.getElementById('cfgOwner').value = cfg.owner || '';
-  document.getElementById('cfgRepo').value = cfg.repo || '';
-  document.getElementById('cfgBranch').value = cfg.branch || 'main';
-  document.getElementById('cfgPath').value = cfg.path || 'products-data.js';
-  document.getElementById('cfgToken').value = cfg.token || '';
-  document.getElementById('pubStatusText').textContent = '';
-  document.getElementById('pubModal').classList.add('open');
-}
-function closePubSettings(){
-  document.getElementById('pubModal').classList.remove('open');
-}
-
-function savePubSettings(){
-  const cfg = {
-    owner: document.getElementById('cfgOwner').value.trim(),
-    repo: document.getElementById('cfgRepo').value.trim(),
-    branch: document.getElementById('cfgBranch').value.trim() || 'main',
-    path: document.getElementById('cfgPath').value.trim() || 'products-data.js',
-    token: document.getElementById('cfgToken').value.trim()
-  };
-  if(!cfg.owner || !cfg.repo || !cfg.token){
-    document.getElementById('pubStatusText').textContent = 'Preencha usuário, repositório e token pra salvar.';
-    return;
-  }
-  localStorage.setItem(PUB_CONFIG_KEY, JSON.stringify(cfg));
-  updatePubStatusLink();
-  closePubSettings();
-  showToast('Configuração de publicação salva ✓');
-}
-
-function forgetToken(){
-  localStorage.removeItem(PUB_CONFIG_KEY);
-  updatePubStatusLink();
-  document.getElementById('cfgToken').value = '';
-  document.getElementById('pubStatusText').textContent = 'Token removido deste navegador.';
-}
-
-function utf8ToBase64(str){
-  return btoa(unescape(encodeURIComponent(str)));
-}
-
-function buildDataFileContent(){
-  const catStr = JSON.stringify(CATEGORIES, null, 2);
-  const prodStr = JSON.stringify(PRODUCTS, null, 2);
-  return `/* =====================================================
-   SABOR QUE UNE — BANCO DE DADOS DO CARDÁPIO
-   Gerado pelo painel administrativo em ${new Date().toLocaleString('pt-BR')}
-   ===================================================== */
-
-window.CATEGORIES = ${catStr};
-
-window.PRODUCTS = ${prodStr};
-`;
-}
-
-async function publishToGitHub(){
-  const cfg = loadPubConfig();
-  if(!cfg){
-    showToast('Configure a publicação primeiro (⚙️ Publicação no topo)', true);
-    openPubSettings();
-    return;
-  }
-
-  const btn = document.getElementById('publishBtn');
-  const originalLabel = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = '⏳ Publicando...';
-
-  const apiUrl = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(cfg.path)}`;
-  const headers = {
-    'Authorization': 'token ' + cfg.token,
-    'Accept': 'application/vnd.github+json'
-  };
-
-  try{
-    // 1) pega o sha atual do arquivo (necessário pro GitHub saber que estamos atualizando, não criando)
-    let sha = undefined;
-    const getResp = await fetch(`${apiUrl}?ref=${encodeURIComponent(cfg.branch)}`, { headers });
-    if(getResp.status === 200){
-      const info = await getResp.json();
-      sha = info.sha;
-    } else if(getResp.status !== 404){
-      const errBody = await getResp.json().catch(()=>({}));
-      throw new Error(errBody.message || `Erro ao ler o arquivo atual (HTTP ${getResp.status})`);
-    }
-
-    // 2) envia a nova versão
-    const content = buildDataFileContent();
-    const putResp = await fetch(apiUrl, {
-      method: 'PUT',
-      headers: { ...headers, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: `Atualização do cardápio — ${new Date().toLocaleString('pt-BR')}`,
-        content: utf8ToBase64(content),
-        branch: cfg.branch,
-        sha: sha
-      })
-    });
-
-    if(!putResp.ok){
-      const errBody = await putResp.json().catch(()=>({}));
-      throw new Error(errBody.message || `Erro ao publicar (HTTP ${putResp.status})`);
-    }
-
-    showToast('Publicado com sucesso! O site atualiza em cerca de 1 minuto ✓');
-  }catch(err){
-    console.error(err);
-    let msg = err.message || 'Falha ao publicar.';
-    if(msg.toLowerCase().includes('bad credentials')) msg = 'Token inválido ou expirado. Gere um novo em ⚙️ Publicação.';
-    if(msg.toLowerCase().includes('not found')) msg = 'Repositório ou arquivo não encontrado. Confira usuário/repositório/caminho em ⚙️ Publicação.';
-    showToast(msg, true);
-  }finally{
-    btn.disabled = false;
-    btn.textContent = originalLabel;
-  }
-}
-
 /* ================== INIT ================== */
 initToolbar();
-updatePubStatusLink();
 render();
 </script>
 </body>
